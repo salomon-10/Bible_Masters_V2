@@ -8,6 +8,10 @@
 --     admin/set_score.php, qui acceptent ['admin', 'arbitre']), mais PAS la
 --     gestion des tournois/équipes/poules (réservée à 'admin' dans
 --     admin/dashboard.php via requireAdminAuth('admin')).
+--
+-- IDEMPOTENCE : Postgres n'a pas de "CREATE POLICY IF NOT EXISTS", donc
+-- chaque policy est précédée d'un "DROP POLICY IF EXISTS" pour rester
+-- rejouable sans erreur, quel que soit l'état de départ de la base.
 
 alter table tournaments enable row level security;
 alter table teams enable row level security;
@@ -52,13 +56,9 @@ as $$
 $$;
 
 -- ---------------------------------------------------------------------------
--- staff_roles : un utilisateur authentifié peut lire UNIQUEMENT sa propre
--- ligne (nécessaire pour résoudre son rôle après connexion, voir
--- apps/admin/lib/auth.ts::getStaffSession()). Toute écriture (création d'un
--- compte staff, changement de rôle) reste réservée au client service_role,
--- utilisé uniquement dans des scripts d'administration serveur — jamais
--- exposée au client, comme le bootstrap admin en PHP.
+-- staff_roles
 -- ---------------------------------------------------------------------------
+drop policy if exists staff_roles_self_read on staff_roles;
 create policy staff_roles_self_read on staff_roles
   for select
   to authenticated
@@ -67,20 +67,24 @@ create policy staff_roles_self_read on staff_roles
 -- ---------------------------------------------------------------------------
 -- tournaments — lecture publique, écriture admin uniquement
 -- ---------------------------------------------------------------------------
+drop policy if exists tournaments_public_read on tournaments;
 create policy tournaments_public_read on tournaments
   for select
   to anon, authenticated
   using (true);
 
+drop policy if exists tournaments_admin_write on tournaments;
 create policy tournaments_admin_write on tournaments
   for insert to authenticated
   with check (is_admin_staff());
 
+drop policy if exists tournaments_admin_update on tournaments;
 create policy tournaments_admin_update on tournaments
   for update to authenticated
   using (is_admin_staff())
   with check (is_admin_staff());
 
+drop policy if exists tournaments_admin_delete on tournaments;
 create policy tournaments_admin_delete on tournaments
   for delete to authenticated
   using (is_admin_staff());
@@ -88,20 +92,24 @@ create policy tournaments_admin_delete on tournaments
 -- ---------------------------------------------------------------------------
 -- teams — lecture publique, écriture admin uniquement
 -- ---------------------------------------------------------------------------
+drop policy if exists teams_public_read on teams;
 create policy teams_public_read on teams
   for select
   to anon, authenticated
   using (true);
 
+drop policy if exists teams_admin_write on teams;
 create policy teams_admin_write on teams
   for insert to authenticated
   with check (is_admin_staff());
 
+drop policy if exists teams_admin_update on teams;
 create policy teams_admin_update on teams
   for update to authenticated
   using (is_admin_staff())
   with check (is_admin_staff());
 
+drop policy if exists teams_admin_delete on teams;
 create policy teams_admin_delete on teams
   for delete to authenticated
   using (is_admin_staff());
@@ -109,28 +117,34 @@ create policy teams_admin_delete on teams
 -- ---------------------------------------------------------------------------
 -- pools / pool_teams — lecture publique, écriture admin uniquement
 -- ---------------------------------------------------------------------------
+drop policy if exists pools_public_read on pools;
 create policy pools_public_read on pools
   for select
   to anon, authenticated
   using (true);
 
+drop policy if exists pools_admin_write on pools;
 create policy pools_admin_write on pools
   for insert to authenticated
   with check (is_admin_staff());
 
+drop policy if exists pools_admin_delete on pools;
 create policy pools_admin_delete on pools
   for delete to authenticated
   using (is_admin_staff());
 
+drop policy if exists pool_teams_public_read on pool_teams;
 create policy pool_teams_public_read on pool_teams
   for select
   to anon, authenticated
   using (true);
 
+drop policy if exists pool_teams_admin_write on pool_teams;
 create policy pool_teams_admin_write on pool_teams
   for insert to authenticated
   with check (is_admin_staff());
 
+drop policy if exists pool_teams_admin_delete on pool_teams;
 create policy pool_teams_admin_delete on pool_teams
   for delete to authenticated
   using (is_admin_staff());
@@ -139,28 +153,31 @@ create policy pool_teams_admin_delete on pool_teams
 -- matches — lecture publique restreinte aux matchs publiés ; le staff
 -- (admin + arbitre) voit tout. Écriture : admin (création/CRUD complet) ou
 -- admin/arbitre (mise à jour statut/score/publication) via matches_staff_update.
--- La création (insert) et la suppression restent réservées à 'admin', comme
--- create_match.php qui n'est accessible qu'au rôle admin.
 -- ---------------------------------------------------------------------------
+drop policy if exists matches_public_read_published on matches;
 create policy matches_public_read_published on matches
   for select
   to anon
   using (published = true);
 
+drop policy if exists matches_staff_read_all on matches;
 create policy matches_staff_read_all on matches
   for select
   to authenticated
   using (is_staff());
 
+drop policy if exists matches_admin_insert on matches;
 create policy matches_admin_insert on matches
   for insert to authenticated
   with check (is_admin_staff());
 
+drop policy if exists matches_staff_update on matches;
 create policy matches_staff_update on matches
   for update to authenticated
   using (is_staff())
   with check (is_staff());
 
+drop policy if exists matches_admin_delete on matches;
 create policy matches_admin_delete on matches
   for delete to authenticated
   using (is_admin_staff());
@@ -169,6 +186,7 @@ create policy matches_admin_delete on matches
 -- match_trials — visibles publiquement seulement si le match parent est
 -- publié ; modifiables par le staff (admin ou arbitre), comme set_score.php.
 -- ---------------------------------------------------------------------------
+drop policy if exists match_trials_public_read on match_trials;
 create policy match_trials_public_read on match_trials
   for select
   to anon
@@ -179,16 +197,19 @@ create policy match_trials_public_read on match_trials
     )
   );
 
+drop policy if exists match_trials_staff_read_all on match_trials;
 create policy match_trials_staff_read_all on match_trials
   for select
   to authenticated
   using (is_staff());
 
+drop policy if exists match_trials_staff_update on match_trials;
 create policy match_trials_staff_update on match_trials
   for update to authenticated
   using (is_staff())
   with check (is_staff());
 
+drop policy if exists match_trials_staff_insert on match_trials;
 create policy match_trials_staff_insert on match_trials
   for insert to authenticated
   with check (is_staff());
@@ -196,11 +217,13 @@ create policy match_trials_staff_insert on match_trials
 -- ---------------------------------------------------------------------------
 -- match_change_logs — lecture/écriture réservées au staff (aucun accès public)
 -- ---------------------------------------------------------------------------
+drop policy if exists match_change_logs_staff_read on match_change_logs;
 create policy match_change_logs_staff_read on match_change_logs
   for select
   to authenticated
   using (is_staff());
 
+drop policy if exists match_change_logs_staff_insert on match_change_logs;
 create policy match_change_logs_staff_insert on match_change_logs
   for insert to authenticated
   with check (is_staff() and staff_user_id = auth.uid());

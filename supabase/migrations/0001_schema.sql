@@ -1,11 +1,14 @@
 -- Bible Masters — schema initial (Postgres / Supabase)
 -- Converti fidèlement depuis database/schema.sql + database/migrations/*.sql (MySQL)
 -- Enums, contraintes et règles métier explicites sont conservés.
+--
+-- IDEMPOTENCE : chaque instruction est rejouable sans erreur, quel que soit
+-- l'état de départ de la base (base vide, ou déjà partiellement migrée).
 
 create extension if not exists "pgcrypto";
 
 -- ---------------------------------------------------------------------------
--- Enums (Sécurisés avec vérification d'existence pour ré-exécution sans erreur 42710)
+-- Enums (sécurisés avec vérification d'existence pour ré-exécution sans erreur 42710)
 -- ---------------------------------------------------------------------------
 do $$
 begin
@@ -16,7 +19,7 @@ begin
   if not exists (select 1 from pg_type where typname = 'match_status') then
     create type match_status as enum ('Programme', 'En cours', 'Termine');
   end if;
-  
+
   if not exists (select 1 from pg_type where typname = 'match_phase') then
     create type match_phase as enum ('Poule', 'Quart', 'Demi', 'PetiteFinale', 'Finale');
   end if;
@@ -40,7 +43,7 @@ $$;
 -- Les comptes sont créés dans auth.users (Supabase Auth) ; cette table stocke
 -- uniquement le rôle métier associé, tenu à distance du client (RLS ci-dessous).
 -- ---------------------------------------------------------------------------
-create table staff_roles (
+create table if not exists staff_roles (
   user_id uuid primary key references auth.users(id) on delete cascade,
   username text not null unique,
   role staff_role not null default 'admin',
@@ -50,7 +53,7 @@ create table staff_roles (
 -- ---------------------------------------------------------------------------
 -- tournaments
 -- ---------------------------------------------------------------------------
-create table tournaments (
+create table if not exists tournaments (
   id bigint generated always as identity primary key,
   name text not null,
   is_active boolean not null default true,
@@ -63,7 +66,7 @@ create table tournaments (
 -- logo_path : chemin/URL publique dans le bucket Supabase Storage "team-logos"
 -- (remplace logo_blob/logo_mime, qui étaient un BLOB SQL côté PHP)
 -- ---------------------------------------------------------------------------
-create table teams (
+create table if not exists teams (
   id bigint generated always as identity primary key,
   tournament_id bigint not null references tournaments(id) on delete cascade,
   name text not null,
@@ -72,12 +75,12 @@ create table teams (
   constraint uq_teams_tournament_name unique (tournament_id, name)
 );
 
-create index idx_teams_tournament_id on teams(tournament_id);
+create index if not exists idx_teams_tournament_id on teams(tournament_id);
 
 -- ---------------------------------------------------------------------------
 -- pools
 -- ---------------------------------------------------------------------------
-create table pools (
+create table if not exists pools (
   id bigint generated always as identity primary key,
   tournament_id bigint not null references tournaments(id) on delete cascade,
   name text not null,
@@ -88,7 +91,7 @@ create table pools (
 -- ---------------------------------------------------------------------------
 -- pool_teams : une équipe appartient à UNE seule poule (règle métier historique)
 -- ---------------------------------------------------------------------------
-create table pool_teams (
+create table if not exists pool_teams (
   id bigint generated always as identity primary key,
   pool_id bigint not null references pools(id) on delete cascade,
   team_id bigint not null references teams(id) on delete cascade,
@@ -100,7 +103,7 @@ create table pool_teams (
 -- ---------------------------------------------------------------------------
 -- matches
 -- ---------------------------------------------------------------------------
-create table matches (
+create table if not exists matches (
   id bigint generated always as identity primary key,
   tournament_id bigint not null references tournaments(id) on delete cascade,
   team1_id bigint not null references teams(id) on delete restrict,
@@ -122,12 +125,14 @@ create table matches (
   )
 );
 
-create index idx_match_status on matches(status);
-create index idx_match_datetime on matches(match_date, match_time);
-create index idx_matches_tournament_id on matches(tournament_id);
-create index idx_matches_phase on matches(phase);
+create index if not exists idx_match_status on matches(status);
+create index if not exists idx_match_datetime on matches(match_date, match_time);
+create index if not exists idx_matches_tournament_id on matches(tournament_id);
+create index if not exists idx_matches_phase on matches(phase);
 
-create trigger trg_matches_updated_at
+-- CREATE OR REPLACE TRIGGER (Postgres 14+, disponible sur Supabase) :
+-- rejouable sans "trigger already exists".
+create or replace trigger trg_matches_updated_at
   before update on matches
   for each row
   execute function set_updated_at();
@@ -135,7 +140,7 @@ create trigger trg_matches_updated_at
 -- ---------------------------------------------------------------------------
 -- match_trials : les "épreuves" (6 par match), score total = somme automatique
 -- ---------------------------------------------------------------------------
-create table match_trials (
+create table if not exists match_trials (
   id bigint generated always as identity primary key,
   match_id bigint not null references matches(id) on delete cascade,
   trial_order smallint not null,
@@ -148,9 +153,9 @@ create table match_trials (
   constraint chk_trial_points_non_negative check (team1_points >= 0 and team2_points >= 0)
 );
 
-create index idx_match_trials_match_id on match_trials(match_id);
+create index if not exists idx_match_trials_match_id on match_trials(match_id);
 
-create trigger trg_match_trials_updated_at
+create or replace trigger trg_match_trials_updated_at
   before update on match_trials
   for each row
   execute function set_updated_at();
@@ -158,7 +163,7 @@ create trigger trg_match_trials_updated_at
 -- ---------------------------------------------------------------------------
 -- match_change_logs : audit trail (statut / score / publication)
 -- ---------------------------------------------------------------------------
-create table match_change_logs (
+create table if not exists match_change_logs (
   id bigint generated always as identity primary key,
   match_id bigint not null references matches(id) on delete cascade,
   staff_user_id uuid not null references auth.users(id) on delete restrict,
@@ -175,8 +180,8 @@ create table match_change_logs (
   created_at timestamptz not null default now()
 );
 
-create index idx_match_change_logs_match_id on match_change_logs(match_id);
-create index idx_match_change_logs_created_at on match_change_logs(created_at);
+create index if not exists idx_match_change_logs_match_id on match_change_logs(match_id);
+create index if not exists idx_match_change_logs_created_at on match_change_logs(created_at);
 
 -- ---------------------------------------------------------------------------
 -- Seed minimal : un tournoi par défaut (comme le schema.sql d'origine)
