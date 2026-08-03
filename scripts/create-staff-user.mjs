@@ -52,8 +52,8 @@ async function main() {
     process.exit(1);
   }
 
-  if (password.length < 12) {
-    console.error("Erreur : le mot de passe doit contenir au moins 12 caractères.");
+  if (password.length < 7) {
+    console.error("Erreur : le mot de passe doit contenir au moins 7 caractères.");
     process.exit(1);
   }
 
