@@ -5,11 +5,20 @@
 create extension if not exists "pgcrypto";
 
 -- ---------------------------------------------------------------------------
--- Enums
+-- Enums (Sécurisés avec vérification d'existence pour ré-exécution sans erreur 42710)
 -- ---------------------------------------------------------------------------
-create type staff_role as enum ('admin', 'arbitre');
-create type match_status as enum ('Programme', 'En cours', 'Termine');
-create type match_phase as enum ('Poule', 'Quart', 'Demi', 'PetiteFinale', 'Finale');
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'staff_role') then
+    create type staff_role as enum ('admin', 'arbitre');
+  end if;
+  if not exists (select 1 from pg_type where typname = 'match_status') then
+    create type match_status as enum ('Programme', 'En cours', 'Termine');
+  end if;
+  if not exists (select 1 from pg_type where typname = 'match_phase') then
+    create type match_phase as enum ('Poule', 'Quart', 'Demi', 'PetiteFinale', 'Finale');
+  end if;
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- Fonction utilitaire : mise à jour automatique de updated_at
