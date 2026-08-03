@@ -3,9 +3,39 @@ import Link from "next/link";
 import "./globals.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
+  
 export const metadata: Metadata = {
-  title: "Bible Masters",
-  description: "Suivez les matchs et classements du tournoi Bible Masters en direct.",
+  title: {
+    default: "Bible Masters",
+    template: "%s | Bible Masters",
+  },
+  description:
+    "Bible Masters — Suivez les matchs et classements du tournoi Bible Masters en direct.",
+  keywords: ["Bible Masters", "social network", "church", "Togo", "digital", "code", "community"],
+  authors: [{ name: "Bible_Masters" }],
+  metadataBase: new URL("https://bible-masters.vercel.app/"),
+  openGraph: {
+    title: "Bible Masters",
+    description: "Bible Masters — Suivez les matchs et classements du tournoi Bible Masters en direct.",
+    url: "https://bible-masters.vercel.app/",
+    siteName: "Bible Masters",
+    images: [
+      {
+        url: "/assets/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "Bible Masters Preview Image",
+      },
+    ],
+    type: "website",
+    locale: "fr_TG",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Bible Masters",
+    description: "Bible Masters",
+    images: ["/assets/logo.png"],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
