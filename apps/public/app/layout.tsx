@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image"; // ← import ajouté
 import "./globals.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
-  
 export const metadata: Metadata = {
   title: {
     default: "Bible Masters",
@@ -44,7 +44,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <header className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-            <Link href="/" className="text-lg font-bold text-brand-700 dark:text-brand-400">
+            <Link
+              href="/"
+              className="flex items-center gap-2 text-lg font-bold text-brand-700 dark:text-brand-400"
+            >
+              <Image
+                src="/assets/logo.png"
+                alt="Bible Masters Logo"
+                width={32}
+                height={32}
+                priority
+              />
               Bible Masters
             </Link>
             <nav className="flex items-center gap-4 text-sm font-medium text-slate-600 dark:text-slate-300">
