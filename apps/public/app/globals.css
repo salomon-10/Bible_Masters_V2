@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+.status-pill {
+  @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold;
+}
+.status-pill--live {
+  @apply bg-red-100 text-live;
+}
+.status-pill--upcoming {
+  @apply bg-brand-100 text-brand-700;
+}
+.status-pill--done {
+  @apply bg-slate-200 text-slate-700;
+}

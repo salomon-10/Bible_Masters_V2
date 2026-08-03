@@ -1,0 +1,18 @@
+{
+  "name": "bible-masters",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Bible Masters — gestion de tournoi (migration PHP -> Next.js + Supabase)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:public": "npm run dev --workspace=apps/public",
+    "dev:admin": "npm run dev --workspace=apps/admin",
+    "build:public": "npm run build --workspace=apps/public",
+    "build:admin": "npm run build --workspace=apps/admin",
+    "typecheck": "npm run typecheck --workspace=packages/shared && npm run typecheck --workspace=apps/public && npm run typecheck --workspace=apps/admin",
+    "lint": "npm run lint --workspace=apps/public && npm run lint --workspace=apps/admin"
+  }
+}
