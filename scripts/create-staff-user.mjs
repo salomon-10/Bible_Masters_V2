@@ -84,6 +84,14 @@ async function main() {
         process.exit(1);
       }
       userId = existing.id;
+
+      // Mise à jour du mot de passe s'il existe déjà
+      const { error: updateError } = await supabase.auth.admin.updateUserById(userId, { password });
+      if (updateError) {
+        console.error("Erreur lors de la mise à jour du mot de passe :", updateError.message);
+        process.exit(1);
+      }
+      console.log(`Compte existant mis à jour avec le nouveau mot de passe pour ${email}.`);
     } else {
       console.error("Erreur lors de la création du compte Auth :", createError.message);
       process.exit(1);
