@@ -40,11 +40,15 @@ async function main() {
     process.exit(1);
   }
 
-  const { email, password, username, role } = args;
+  let { email, password, username, role } = args;
 
-  if (!email || !password || !username || !role) {
-    console.error("Usage : node scripts/create-staff-user.mjs --email <email> --password <motdepasse> --username <pseudo> --role <admin|arbitre>");
+  if (!username || !password || !role) {
+    console.error("Usage : node scripts/create-staff-user.mjs --username <pseudo> --password <motdepasse> --role <admin|arbitre> [--email <email>]");
     process.exit(1);
+  }
+
+  if (!email) {
+    email = `${username}@biblemasters.local`;
   }
 
   if (!["admin", "arbitre"].includes(role)) {
