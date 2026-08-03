@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MatchWithTeams } from "@bible-masters/shared";
 import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { phaseLabel, statusClass, statusLabel } from "./match-format";
@@ -17,18 +17,24 @@ interface LiveMatchViewProps {
   initialTrials: TrialRow[];
 }
 
-/**
- * Remplace le mécanisme de polling HTML de user/match.php (setInterval +
- * refetch/DOMParser toutes les 5s) par un abonnement Supabase Realtime : les
- * mises à jour de statut/score/épreuves apparaissent instantanément, sans
- * recharger la page.
- */
 export function LiveMatchView({ initialMatch, initialTrials }: LiveMatchViewProps) {
   const [match, setMatch] = useState(initialMatch);
   const [trials, setTrials] = useState(initialTrials);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Calcul des totaux (identique au back‑office)
+  const totals = useMemo(() => {
+    return trials.reduce(
+      (acc, t) => ({
+        team1: acc.team1 + t.team1Points,
+        team2: acc.team2 + t.team2Points,
+      }),
+      { team1: 0, team2: 0 }
+    );
+  }, [trials]);
+
+  // Abonnement Realtime
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
     const channel = supabase
@@ -74,7 +80,6 @@ export function LiveMatchView({ initialMatch, initialTrials }: LiveMatchViewProp
     return () => {
       supabase.removeChannel(channel);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [match.id]);
 
   const toggleFullscreen = useCallback(async () => {
@@ -90,7 +95,13 @@ export function LiveMatchView({ initialMatch, initialTrials }: LiveMatchViewProp
   const cls = statusClass(match.status);
 
   return (
-    <div ref={containerRef} className={`flex flex-col gap-6 rounded-2xl bg-white p-6 shadow-sm ${isFullscreen ? "justify-center" : ""}`}>
+    <div
+      ref={containerRef}
+      className={`flex flex-col gap-6 rounded-2xl bg-white p-6 shadow-sm ${
+        isFullscreen ? "justify-center" : ""
+      }`}
+    >
+      {/* En‑tête : statut, phase, plein écran */}
       <div className="flex items-center justify-between">
         <span className={`status-pill status-pill--${cls}`}>{statusLabel(match.status)}</span>
         <div className="flex items-center gap-3 text-sm text-slate-500">
@@ -105,25 +116,49 @@ export function LiveMatchView({ initialMatch, initialTrials }: LiveMatchViewProp
         </div>
       </div>
 
+      {/* Score global */}
       <div className="grid grid-cols-3 items-center gap-4 text-center">
         <TeamColumn name={match.team1Name} logoUrl={match.team1LogoUrl} />
         <div className="text-5xl font-black tabular-nums text-slate-900">
-          {match.scoreTeam1 ?? "–"} <span className="text-2xl text-slate-400">:</span> {match.scoreTeam2 ?? "–"}
+          {match.scoreTeam1 ?? "–"} <span className="text-2xl text-slate-400">:</span>{" "}
+          {match.scoreTeam2 ?? "–"}
         </div>
         <TeamColumn name={match.team2Name} logoUrl={match.team2LogoUrl} />
       </div>
 
+      {/* Tableau des épreuves – identique au back‑office */}
       <div className="flex flex-col divide-y divide-slate-100 rounded-xl border border-slate-100">
+        {/* En‑tête du tableau */}
+        <div className="grid grid-cols-[1fr_100px_100px] gap-2 bg-slate-50 px-4 py-2 text-xs font-semibold uppercase text-slate-500">
+          <span>Épreuve</span>
+          <span className="text-center">{match.team1Name}</span>
+          <span className="text-center">{match.team2Name}</span>
+        </div>
+
+        {/* Lignes des épreuves */}
         {trials.map((trial) => (
-          <div key={trial.trialOrder} className="flex items-center justify-between px-4 py-2 text-sm">
-            <span className="font-medium text-slate-700">
+          <div
+            key={trial.trialOrder}
+            className="grid grid-cols-[1fr_100px_100px] items-center gap-2 px-4 py-2"
+          >
+            <span className="text-sm font-medium text-slate-700">
               {trial.trialOrder}. {trial.trialName}
             </span>
-            <span className="tabular-nums font-semibold text-slate-800">
-              {trial.team1Points} – {trial.team2Points}
+            <span className="text-center text-sm font-semibold tabular-nums text-slate-800">
+              {trial.team1Points}
+            </span>
+            <span className="text-center text-sm font-semibold tabular-nums text-slate-800">
+              {trial.team2Points}
             </span>
           </div>
         ))}
+
+        {/* Ligne des totaux (comme dans le back‑office) */}
+        <div className="grid grid-cols-[1fr_100px_100px] items-center gap-2 bg-slate-50 px-4 py-2 font-black tabular-nums text-slate-800">
+          <span className="text-sm font-bold uppercase text-slate-500">Total</span>
+          <span className="text-center">{totals.team1}</span>
+          <span className="text-center">{totals.team2}</span>
+        </div>
       </div>
     </div>
   );
