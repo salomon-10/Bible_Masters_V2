@@ -20,14 +20,14 @@ export function CreateTournamentForm() {
   const [state, action, pending] = useActionState(createTournamentAction, initial);
   return (
     <form action={action} className="flex flex-col gap-2">
-      <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row gap-2">
         <input
           name="tournament_name"
           placeholder="Nom du tournoi"
           required
-          className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          className="flex-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-800 dark:text-slate-100"
         />
-        <button disabled={pending} className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+        <button disabled={pending} className="w-full sm:w-auto rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 transition-colors">
           Créer
         </button>
       </div>
@@ -58,10 +58,10 @@ export function CreateTeamForm({ tournamentId }: { tournamentId: number }) {
   return (
     <form action={action} className="flex flex-col gap-2" encType="multipart/form-data">
       <input type="hidden" name="selected_tournament_id" value={tournamentId} />
-      <div className="flex flex-wrap gap-2">
-        <input name="team_name" placeholder="Nom de l'équipe" required className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-        <input type="file" name="team_logo" accept="image/png,image/jpeg,image/webp" className="text-sm" />
-        <button disabled={pending} className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+        <input name="team_name" placeholder="Nom de l'équipe" required className="flex-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-800 dark:text-slate-100" />
+        <input type="file" name="team_logo" accept="image/png,image/jpeg,image/webp" className="text-xs sm:text-sm text-slate-600 dark:text-slate-300" />
+        <button disabled={pending} className="w-full sm:w-auto rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 transition-colors">
           Ajouter l&apos;équipe
         </button>
       </div>
@@ -76,7 +76,7 @@ export function DeleteTeamForm({ tournamentId, teamId }: { tournamentId: number;
     <form action={action}>
       <input type="hidden" name="selected_tournament_id" value={tournamentId} />
       <input type="hidden" name="team_id" value={teamId} />
-      <button className="rounded-lg border border-red-200 px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50">
+      <button className="rounded-lg border border-red-200 dark:border-red-900/60 px-2 py-1 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40">
         Retirer
       </button>
     </form>
@@ -88,9 +88,9 @@ export function CreatePoolForm({ tournamentId }: { tournamentId: number }) {
   return (
     <form action={action} className="flex flex-col gap-2">
       <input type="hidden" name="selected_tournament_id" value={tournamentId} />
-      <div className="flex gap-2">
-        <input name="pool_name" placeholder="Nom de la poule (ex: Poule A)" required className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-        <button disabled={pending} className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+      <div className="flex flex-col sm:flex-row gap-2">
+        <input name="pool_name" placeholder="Nom de la poule (ex: Poule A)" required className="flex-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-800 dark:text-slate-100" />
+        <button disabled={pending} className="w-full sm:w-auto rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 transition-colors">
           Créer
         </button>
       </div>
@@ -115,22 +115,22 @@ export function AttachTeamToPoolForm({
   return (
     <form action={action} className="flex flex-col gap-2">
       <input type="hidden" name="selected_tournament_id" value={tournamentId} />
-      <div className="flex flex-wrap gap-2">
-        <select name="team_id" required className="rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      <div className="flex flex-col sm:flex-row gap-2">
+        <select name="team_id" required className="flex-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-800 dark:text-slate-100">
           {unassignedTeams.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name}
             </option>
           ))}
         </select>
-        <select name="pool_id" required className="rounded-lg border border-slate-300 px-3 py-2 text-sm">
+        <select name="pool_id" required className="flex-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-800 dark:text-slate-100">
           {pools.map((p) => (
             <option key={p.id} value={p.id}>
               {p.name}
             </option>
           ))}
         </select>
-        <button disabled={pending} className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+        <button disabled={pending} className="w-full sm:w-auto rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 transition-colors">
           Affecter à la poule
         </button>
       </div>

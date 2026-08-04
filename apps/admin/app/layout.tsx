@@ -45,31 +45,31 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="fr" suppressHydrationWarning>
       <body>
         <header className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors">
-          <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-            <Link href="/dashboard" className="text-lg font-bold text-brand-700 dark:text-brand-400">
+           <div className="mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 sm:py-4">
+            <Link href="/dashboard" className="text-base sm:text-lg font-bold text-brand-700 dark:text-brand-400">
               Bible Masters — Back-office
             </Link>
-            <nav className="flex items-center gap-4 text-sm font-medium text-slate-600 dark:text-slate-300">
+            <nav className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
               {session && (
                 <>
                   {session.role === "admin" && (
                     <>
-                      <Link href="/dashboard" className="hover:text-brand-600 dark:hover:text-brand-400">
+                      <Link href="/dashboard" className="hover:text-brand-600 dark:hover:text-brand-400 whitespace-nowrap">
                         Tournois
                       </Link>
-                      <Link href="/matches/create" className="hover:text-brand-600 dark:hover:text-brand-400">
+                      <Link href="/matches/create" className="hover:text-brand-600 dark:hover:text-brand-400 whitespace-nowrap">
                         Créer un match
                       </Link>
                     </>
                   )}
-                  <Link href="/visibilite" className="hover:text-brand-600 dark:hover:text-brand-400">
+                  <Link href="/visibilite" className="hover:text-brand-600 dark:hover:text-brand-400 whitespace-nowrap">
                     Visibilité
                   </Link>
-                  <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">
                     {session.username} · {session.role}
                   </span>
-                  <form action={logoutAction}>
-                    <button type="submit" className="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <form action={logoutAction} className="inline">
+                    <button type="submit" className="rounded-lg border border-slate-300 dark:border-slate-700 px-2.5 py-1 text-[11px] sm:text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 whitespace-nowrap">
                       Déconnexion
                     </button>
                   </form>

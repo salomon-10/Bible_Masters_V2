@@ -92,25 +92,25 @@ export function TrialEditor({ matchId, initialStatus, initialTrials, team1Name, 
 
   return (
     <div className="flex flex-col gap-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm transition-colors">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">
+          <h1 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">
             {team1Name} <span className="text-brand-600 dark:text-brand-400">vs</span> {team2Name}
           </h1>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Statut : {status}</p>
+          <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">Statut : {status}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <button
             onClick={handleStart}
             disabled={status !== "Programme" || isPending}
-            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-40 transition-colors"
+            className="w-full sm:w-auto rounded-lg bg-brand-600 px-4 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-40 transition-colors"
           >
             Démarrer le match
           </button>
           <button
             onClick={handleEnd}
             disabled={status !== "En cours" || isPending}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-40 transition-colors"
+            className="w-full sm:w-auto rounded-lg bg-emerald-600 px-4 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-40 transition-colors"
           >
             Terminer le match
           </button>
@@ -244,7 +244,7 @@ export function TrialEditor({ matchId, initialStatus, initialTrials, team1Name, 
         </div>
 
         <div className="flex flex-col divide-y divide-slate-100 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-          <div className="grid grid-cols-[1fr_120px_120px] gap-2 bg-slate-50 dark:bg-slate-800/60 px-4 py-2.5 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
+          <div className="grid grid-cols-[1fr_75px_75px] sm:grid-cols-[1fr_120px_120px] gap-2 bg-slate-50 dark:bg-slate-800/60 px-3 sm:px-4 py-2.5 text-[11px] sm:text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
             <span>Épreuve</span>
             <span className="text-center truncate">{team1Name}</span>
             <span className="text-center truncate">{team2Name}</span>
@@ -258,7 +258,7 @@ export function TrialEditor({ matchId, initialStatus, initialTrials, team1Name, 
                 onClick={() => {
                   if (!locked) setSelectedTrialOrder(trial.trialOrder);
                 }}
-                className={`grid grid-cols-[1fr_120px_120px] items-center gap-2 px-4 py-3 transition-colors ${
+                className={`grid grid-cols-[1fr_75px_75px] sm:grid-cols-[1fr_120px_120px] items-center gap-2 px-3 sm:px-4 py-3 transition-colors ${
                   locked
                     ? "opacity-80"
                     : "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40"
@@ -268,9 +268,9 @@ export function TrialEditor({ matchId, initialStatus, initialTrials, team1Name, 
                     : ""
                 }`}
               >
-                <div className="flex items-center gap-2 text-sm text-slate-800 dark:text-slate-200">
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-800 dark:text-slate-200 min-w-0">
                   <span
-                    className={`flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold ${
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] sm:text-xs font-bold ${
                       isSelected
                         ? "bg-brand-600 text-white"
                         : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
@@ -278,19 +278,19 @@ export function TrialEditor({ matchId, initialStatus, initialTrials, team1Name, 
                   >
                     {trial.trialOrder}
                   </span>
-                  <span>{trial.trialName}</span>
+                  <span className="break-words leading-tight">{trial.trialName}</span>
                   {isSelected && (
-                    <span className="ml-2 rounded bg-brand-100 dark:bg-brand-900 px-1.5 py-0.5 text-[10px] font-bold text-brand-700 dark:text-brand-300">
+                    <span className="hidden sm:inline-block ml-1 rounded bg-brand-100 dark:bg-brand-900 px-1.5 py-0.5 text-[10px] font-bold text-brand-700 dark:text-brand-300 shrink-0">
                       Active
                     </span>
                   )}
                 </div>
 
-                <div className="text-center font-bold text-slate-800 dark:text-slate-100 tabular-nums text-base">
+                <div className="text-center font-bold text-slate-800 dark:text-slate-100 tabular-nums text-sm sm:text-base">
                   {trial.team1Points}
                 </div>
 
-                <div className="text-center font-bold text-slate-800 dark:text-slate-100 tabular-nums text-base">
+                <div className="text-center font-bold text-slate-800 dark:text-slate-100 tabular-nums text-sm sm:text-base">
                   {trial.team2Points}
                 </div>
               </div>
@@ -299,9 +299,9 @@ export function TrialEditor({ matchId, initialStatus, initialTrials, team1Name, 
         </div>
       </div>
 
-      <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-4">
-        <span className="text-sm font-bold text-slate-600 dark:text-slate-400">Score total cumulé :</span>
-        <div className="flex gap-6 text-xl font-black tabular-nums text-slate-900 dark:text-slate-100">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-t border-slate-200 dark:border-slate-800 pt-4">
+        <span className="text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400">Score total cumulé :</span>
+        <div className="flex flex-wrap gap-3 sm:gap-6 text-base sm:text-xl font-black tabular-nums text-slate-900 dark:text-slate-100">
           <span>{team1Name}: <span className="text-brand-600 dark:text-brand-400">{totals.team1}</span></span>
           <span className="text-slate-300 dark:text-slate-700">|</span>
           <span>{team2Name}: <span className="text-brand-600 dark:text-brand-400">{totals.team2}</span></span>
