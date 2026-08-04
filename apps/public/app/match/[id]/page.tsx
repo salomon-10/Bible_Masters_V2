@@ -19,7 +19,7 @@ export default async function MatchPage({ params }: PageProps) {
   const trials = await fetchMatchTrials(matchId);
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-5xl px-2 sm:px-4">
       <LiveMatchView initialMatch={match} initialTrials={trials} />
     </div>
   );

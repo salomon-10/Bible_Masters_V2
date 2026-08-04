@@ -23,7 +23,6 @@ export function LiveMatchView({ initialMatch, initialTrials }: LiveMatchViewProp
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Calcul des totaux (identique au back‑office)
   const totals = useMemo(() => {
     return trials.reduce(
       (acc, t) => ({
@@ -34,7 +33,6 @@ export function LiveMatchView({ initialMatch, initialTrials }: LiveMatchViewProp
     );
   }, [trials]);
 
-  // Abonnement Realtime
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
     const channel = supabase
@@ -97,11 +95,11 @@ export function LiveMatchView({ initialMatch, initialTrials }: LiveMatchViewProp
   return (
     <div
       ref={containerRef}
-      className={`flex flex-col gap-6 rounded-2xl bg-white p-6 shadow-sm ${
-        isFullscreen ? "justify-center" : ""
+      className={`flex flex-col gap-8 rounded-2xl bg-white p-10 shadow-sm w-full max-w-7xl mx-auto ${
+        isFullscreen ? "justify-center min-h-screen" : ""
       }`}
     >
-      {/* En‑tête : statut, phase, plein écran */}
+      {/* En‑tête */}
       <div className="flex items-center justify-between">
         <span className={`status-pill status-pill--${cls}`}>{statusLabel(match.status)}</span>
         <div className="flex items-center gap-3 text-sm text-slate-500">
@@ -116,64 +114,73 @@ export function LiveMatchView({ initialMatch, initialTrials }: LiveMatchViewProp
         </div>
       </div>
 
-      {/* Score global */}
-      <div className="grid grid-cols-3 items-center gap-4 text-center">
-        <TeamColumn name={match.team1Name} logoUrl={match.team1LogoUrl} />
-        <div className="text-5xl font-black tabular-nums text-slate-900">
-          {match.scoreTeam1 ?? "–"} <span className="text-2xl text-slate-400">:</span>{" "}
-          {match.scoreTeam2 ?? "–"}
+      {/* Ligne d'en-tête : logos seuls (nom retiré), logos agrandis à 64 */}
+      <div className="grid grid-cols-[1fr_2fr_1fr] gap-2 items-center">
+        {/* Équipe 1 */}
+        <div className="flex justify-center items-center overflow-hidden">
+          {match.team1LogoUrl ? (
+            <img
+              src={match.team1LogoUrl}
+              alt={match.team1Name}
+              className="w-64 h-64 rounded-full object-cover shadow-md flex-shrink-0"
+            />
+          ) : (
+            <div className="w-64 h-64 rounded-full bg-slate-200 shadow-md flex-shrink-0" />
+          )}
         </div>
-        <TeamColumn name={match.team2Name} logoUrl={match.team2LogoUrl} />
+
+        {/* Score total au centre */}
+        <div className="flex items-center justify-center gap-4 text-8xl font-black tabular-nums text-slate-900">
+          <span>{match.scoreTeam1 ?? "–"}</span>
+          <span className="text-5xl text-slate-400">:</span>
+          <span>{match.scoreTeam2 ?? "–"}</span>
+        </div>
+
+        {/* Équipe 2 */}
+        <div className="flex justify-center items-center overflow-hidden">
+          {match.team2LogoUrl ? (
+            <img
+              src={match.team2LogoUrl}
+              alt={match.team2Name}
+              className="w-64 h-64 rounded-full object-cover shadow-md flex-shrink-0"
+            />
+          ) : (
+            <div className="w-64 h-64 rounded-full bg-slate-200 shadow-md flex-shrink-0" />
+          )}
+        </div>
       </div>
 
-      {/* Tableau des épreuves – identique au back‑office */}
-      <div className="flex flex-col divide-y divide-slate-100 rounded-xl border border-slate-100">
-        {/* En‑tête du tableau */}
-        <div className="grid grid-cols-[1fr_100px_100px] gap-2 bg-slate-50 px-4 py-2 text-xs font-semibold uppercase text-slate-500">
-          <span>Épreuve</span>
-          <span className="text-center">{match.team1Name}</span>
-          <span className="text-center">{match.team2Name}</span>
+      {/* Tableau des épreuves */}
+      <div className="flex flex-col divide-y divide-slate-100 rounded-xl border border-slate-100 overflow-hidden">
+        <div className="grid grid-cols-[1fr_2fr_1fr] gap-2 bg-slate-50 px-4 py-3 text-base font-semibold uppercase text-slate-500">
+          <span className="text-center truncate px-1">{match.team1Name}</span>
+          <span className="text-center text-lg">Épreuve</span>
+          <span className="text-center truncate px-1">{match.team2Name}</span>
         </div>
 
-        {/* Lignes des épreuves */}
         {trials.map((trial) => (
           <div
             key={trial.trialOrder}
-            className="grid grid-cols-[1fr_100px_100px] items-center gap-2 px-4 py-2"
+            className="grid grid-cols-[1fr_2fr_1fr] items-center gap-2 px-4 py-4"
           >
-            <span className="text-sm font-medium text-slate-700">
-              {trial.trialOrder}. {trial.trialName}
-            </span>
-            <span className="text-center text-sm font-semibold tabular-nums text-slate-800">
+            <span className="text-center text-3xl font-bold tabular-nums text-slate-800">
               {trial.team1Points}
             </span>
-            <span className="text-center text-sm font-semibold tabular-nums text-slate-800">
+            <span className="text-center text-2xl font-semibold text-slate-700 truncate px-1">
+              {trial.trialOrder}. {trial.trialName}
+            </span>
+            <span className="text-center text-3xl font-bold tabular-nums text-slate-800">
               {trial.team2Points}
             </span>
           </div>
         ))}
 
-        {/* Ligne des totaux (comme dans le back‑office) */}
-        <div className="grid grid-cols-[1fr_100px_100px] items-center gap-2 bg-slate-50 px-4 py-2 font-black tabular-nums text-slate-800">
-          <span className="text-sm font-bold uppercase text-slate-500">Total</span>
-          <span className="text-center">{totals.team1}</span>
-          <span className="text-center">{totals.team2}</span>
+        <div className="grid grid-cols-[1fr_2fr_1fr] items-center gap-2 bg-slate-50 px-4 py-4 font-black tabular-nums text-slate-800">
+          <span className="text-center text-3xl">{totals.team1}</span>
+          <span className="text-center text-xl font-bold uppercase text-slate-500">Total</span>
+          <span className="text-center text-3xl">{totals.team2}</span>
         </div>
       </div>
-    </div>
-  );
-}
-
-function TeamColumn({ name, logoUrl }: { name: string; logoUrl: string | null }) {
-  return (
-    <div className="flex flex-col items-center gap-2">
-      {logoUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={logoUrl} alt={name} className="h-16 w-16 rounded-full object-cover" />
-      ) : (
-        <div className="h-16 w-16 rounded-full bg-slate-200" />
-      )}
-      <span className="text-base font-bold text-slate-800">{name}</span>
     </div>
   );
 }
