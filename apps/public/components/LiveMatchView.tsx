@@ -95,44 +95,46 @@ export function LiveMatchView({ initialMatch, initialTrials }: LiveMatchViewProp
   return (
     <div
       ref={containerRef}
-      className={`flex flex-col gap-8 rounded-2xl bg-white p-10 shadow-sm w-full max-w-7xl mx-auto ${
+      className={`flex flex-col gap-4 sm:gap-6 lg:gap-8 rounded-xl sm:rounded-2xl bg-white p-4 sm:p-6 lg:p-10 shadow-sm w-full max-w-7xl mx-auto ${
         isFullscreen ? "justify-center min-h-screen" : ""
       }`}
     >
       {/* En‑tête */}
-      <div className="flex items-center justify-between">
-        <span className={`status-pill status-pill--${cls}`}>{statusLabel(match.status)}</span>
-        <div className="flex items-center gap-3 text-sm text-slate-500">
-          <span>{phaseLabel(match.phase)}</span>
+      <div className="flex items-center justify-between gap-2">
+        <span className={`status-pill status-pill--${cls} text-xs sm:text-sm lg:text-base`}>
+          {statusLabel(match.status)}
+        </span>
+        <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate-500">
+          <span className="hidden xs:inline sm:inline">{phaseLabel(match.phase)}</span>
           <button
             type="button"
             onClick={toggleFullscreen}
-            className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold hover:bg-slate-100"
+            className="rounded-lg border border-slate-300 px-2 py-1 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-semibold hover:bg-slate-100 whitespace-nowrap"
           >
-            {isFullscreen ? "Quitter le plein écran" : "Plein écran"}
+            {isFullscreen ? "Quitter" : "Plein écran"}
           </button>
         </div>
       </div>
 
-      {/* Ligne d'en-tête : logos seuls (nom retiré), logos agrandis à 64 */}
-      <div className="grid grid-cols-[1fr_2fr_1fr] gap-2 items-center">
+      {/* Ligne d'en-tête : logos seuls (nom retiré) */}
+      <div className="grid grid-cols-[1fr_2fr_1fr] gap-1 sm:gap-2 items-center">
         {/* Équipe 1 */}
         <div className="flex justify-center items-center overflow-hidden">
           {match.team1LogoUrl ? (
             <img
               src={match.team1LogoUrl}
               alt={match.team1Name}
-              className="w-64 h-64 rounded-full object-cover shadow-md flex-shrink-0"
+              className="w-14 h-14 xs:w-16 xs:h-16 sm:w-24 sm:h-24 md:w-40 md:h-40 lg:w-64 lg:h-64 rounded-full object-cover shadow-md flex-shrink-0"
             />
           ) : (
-            <div className="w-64 h-64 rounded-full bg-slate-200 shadow-md flex-shrink-0" />
+            <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-24 sm:h-24 md:w-40 md:h-40 lg:w-64 lg:h-64 rounded-full bg-slate-200 shadow-md flex-shrink-0" />
           )}
         </div>
 
         {/* Score total au centre */}
-        <div className="flex items-center justify-center gap-4 text-8xl font-black tabular-nums text-slate-900">
+        <div className="flex items-center justify-center gap-1.5 sm:gap-3 lg:gap-4 text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black tabular-nums text-slate-900">
           <span>{match.scoreTeam1 ?? "–"}</span>
-          <span className="text-5xl text-slate-400">:</span>
+          <span className="text-xl xs:text-2xl sm:text-3xl lg:text-5xl text-slate-400">:</span>
           <span>{match.scoreTeam2 ?? "–"}</span>
         </div>
 
@@ -142,43 +144,45 @@ export function LiveMatchView({ initialMatch, initialTrials }: LiveMatchViewProp
             <img
               src={match.team2LogoUrl}
               alt={match.team2Name}
-              className="w-64 h-64 rounded-full object-cover shadow-md flex-shrink-0"
+              className="w-14 h-14 xs:w-16 xs:h-16 sm:w-24 sm:h-24 md:w-40 md:h-40 lg:w-64 lg:h-64 rounded-full object-cover shadow-md flex-shrink-0"
             />
           ) : (
-            <div className="w-64 h-64 rounded-full bg-slate-200 shadow-md flex-shrink-0" />
+            <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-24 sm:h-24 md:w-40 md:h-40 lg:w-64 lg:h-64 rounded-full bg-slate-200 shadow-md flex-shrink-0" />
           )}
         </div>
       </div>
 
       {/* Tableau des épreuves */}
-      <div className="flex flex-col divide-y divide-slate-100 rounded-xl border border-slate-100 overflow-hidden">
-        <div className="grid grid-cols-[1fr_2fr_1fr] gap-2 bg-slate-50 px-4 py-3 text-base font-semibold uppercase text-slate-500">
+      <div className="flex flex-col divide-y divide-slate-100 rounded-lg sm:rounded-xl border border-slate-100 overflow-hidden">
+        <div className="grid grid-cols-[1fr_2fr_1fr] gap-1 sm:gap-2 bg-slate-50 px-2 py-2 sm:px-4 sm:py-3 text-[10px] xs:text-xs sm:text-sm lg:text-base font-semibold uppercase text-slate-500">
           <span className="text-center truncate px-1">{match.team1Name}</span>
-          <span className="text-center text-lg">Épreuve</span>
+          <span className="text-center text-xs sm:text-sm lg:text-lg">Épreuve</span>
           <span className="text-center truncate px-1">{match.team2Name}</span>
         </div>
 
         {trials.map((trial) => (
           <div
             key={trial.trialOrder}
-            className="grid grid-cols-[1fr_2fr_1fr] items-center gap-2 px-4 py-4"
+            className="grid grid-cols-[1fr_2fr_1fr] items-center gap-1 sm:gap-2 px-2 py-2 sm:px-4 sm:py-4"
           >
-            <span className="text-center text-3xl font-bold tabular-nums text-slate-800">
+            <span className="text-center text-base xs:text-lg sm:text-2xl md:text-3xl font-bold tabular-nums text-slate-800">
               {trial.team1Points}
             </span>
-            <span className="text-center text-2xl font-semibold text-slate-700 truncate px-1">
+            <span className="text-center text-[11px] xs:text-xs sm:text-base md:text-2xl font-semibold text-slate-700 truncate px-1">
               {trial.trialOrder}. {trial.trialName}
             </span>
-            <span className="text-center text-3xl font-bold tabular-nums text-slate-800">
+            <span className="text-center text-base xs:text-lg sm:text-2xl md:text-3xl font-bold tabular-nums text-slate-800">
               {trial.team2Points}
             </span>
           </div>
         ))}
 
-        <div className="grid grid-cols-[1fr_2fr_1fr] items-center gap-2 bg-slate-50 px-4 py-4 font-black tabular-nums text-slate-800">
-          <span className="text-center text-3xl">{totals.team1}</span>
-          <span className="text-center text-xl font-bold uppercase text-slate-500">Total</span>
-          <span className="text-center text-3xl">{totals.team2}</span>
+        <div className="grid grid-cols-[1fr_2fr_1fr] items-center gap-1 sm:gap-2 bg-slate-50 px-2 py-2 sm:px-4 sm:py-4 font-black tabular-nums text-slate-800">
+          <span className="text-center text-lg xs:text-xl sm:text-2xl md:text-3xl">{totals.team1}</span>
+          <span className="text-center text-xs xs:text-sm sm:text-base md:text-xl font-bold uppercase text-slate-500">
+            Total
+          </span>
+          <span className="text-center text-lg xs:text-xl sm:text-2xl md:text-3xl">{totals.team2}</span>
         </div>
       </div>
     </div>
